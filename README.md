@@ -1,4 +1,4 @@
-# eventpost
+# Events
 Golang events library 
 
 ## Example
