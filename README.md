@@ -1,31 +1,32 @@
 # Events
-Golang events library 
+Simple golang events library
 
 ## Example
 ```go
 package main
 
 import (
-    "fmt"
-    "github.com/night-codes/events"
-    "strconv"
+	"fmt"
+	"strconv"
+
+	"github.com/night-codes/events"
 )
 
 var (
-    myEvent = events.New()
+	myEvent = events.New()
 )
 
 func main() {
-    for i := 0; i < 10; i++ {
-        l := i
-        myEvent.On(func(data events.Map) {
-            fmt.Println("Listener"+strconv.Itoa(l), data["msg"])
-        })
-    }
-    for j := 0; j < 10; j++ {
-        fmt.Println("")
-        myEvent.Emit(events.Map{"msg": "Event" + strconv.Itoa(j)})
-    }
+	for i := 0; i < 10; i++ {
+		l := i
+		myEvent.On(func(data interface{}) {
+			fmt.Println("Listener"+strconv.Itoa(l), data)
+		})
+	}
+	for j := 0; j < 10; j++ {
+		fmt.Println("====== Emit: " + strconv.Itoa(j) + " =====")
+		myEvent.Emit("Event" + strconv.Itoa(j))
+	}
 }
 ```
 

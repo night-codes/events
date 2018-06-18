@@ -6,8 +6,6 @@ import (
 )
 
 type (
-	Map map[string]interface{}
-
 	// Event emitter
 	Event struct {
 		currID uint64
@@ -18,7 +16,7 @@ type (
 	// Listener instance
 	Listener struct {
 		id     uint64
-		fn     func(Map)
+		fn     func(interface{})
 		once   bool
 		parent *Event
 	}
@@ -39,7 +37,7 @@ func (l *Listener) Remove() {
 	l.parent.RemoveListener(l)
 }
 
-func (e *Event) addListener(fn func(Map), once bool) (listener *Listener) {
+func (e *Event) addListener(fn func(interface{}), once bool) (listener *Listener) {
 	listener = &Listener{id: atomic.AddUint64(&e.currID, 1), fn: fn, once: once, parent: e}
 	e.Lock()
 	defer e.Unlock()
@@ -48,13 +46,13 @@ func (e *Event) addListener(fn func(Map), once bool) (listener *Listener) {
 }
 
 // On - create a new listener
-func (e *Event) On(fn func(Map)) (listener *Listener) {
+func (e *Event) On(fn func(interface{})) (listener *Listener) {
 	listener = e.addListener(fn, false)
 	return
 }
 
 // Once - create a new one-time listener
-func (e *Event) Once(fn func(Map)) (listener *Listener) {
+func (e *Event) Once(fn func(interface{})) (listener *Listener) {
 	listener = e.addListener(fn, true)
 	return
 }
@@ -91,16 +89,12 @@ func (e *Event) ListenersCount() int {
 }
 
 // Emit new event
-func (e *Event) Emit(data Map) *Event {
+func (e *Event) Emit(data interface{}) *Event {
 	listeners := []*Listener{}
 	e.Lock()
 	defer e.Unlock()
 	for _, l := range e.listeners {
-		dataSend := make(Map, len(data))
-		for k := range data {
-			dataSend[k] = data[k]
-		}
-		l.fn(dataSend)
+		l.fn(data)
 		if !l.once {
 			listeners = append(listeners, l)
 		}
